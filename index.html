@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Landing Experience</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    :root {
+      color-scheme: dark;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 23%),
+                  radial-gradient(circle at bottom right, rgba(79, 70, 229, 0.15), transparent 25%),
+                  linear-gradient(180deg, #020617 0%, #050a19 100%);
+      color: #e2e8f0;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .parallax-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, rgba(56, 189, 248, 0.1), transparent 40%),
+                  radial-gradient(circle at 80% 70%, rgba(79, 70, 229, 0.08), transparent 35%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .glow-card {
+      background: rgba(15, 23, 42, 0.76);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 35px 80px rgba(14, 28, 81, 0.35);
+      transition: transform 280ms ease, box-shadow 280ms ease, border-color 280ms ease;
+    }
+
+    .glow-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 45px 90px rgba(14, 28, 81, 0.38);
+      border-color: rgba(96, 165, 250, 0.22);
+    }
+
+    .pulse-dot {
+      width: 0.9rem;
+      height: 0.9rem;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #60a5fa, #c084fc);
+      box-shadow: 0 0 20px rgba(96, 165, 250, 0.6);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.5; }
+    }
+
+    .section-heading {
+      background: linear-gradient(90deg, #60a5fa 0%, #c084fc 100%);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .feature-ring {
+      background: radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 23%),
+                  radial-gradient(circle at bottom right, rgba(192, 132, 252, 0.12), transparent 20%);
+      border-radius: 2rem;
+      padding: 1.5rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .hero-grid {
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 2.5rem;
+      }
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(7, 10, 25, 0.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      padding: 0.75rem 0;
+    }
+
+    .site-header .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f8fafc;
+    }
+
+    .theme-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(148, 163, 184, 0.08);
+      color: #e2e8f0;
+      padding: 0.75rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.88rem;
+      transition: background-color 200ms ease, transform 200ms ease;
+    }
+
+    .theme-button:hover {
+      background: rgba(96, 165, 250, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .theme-icon {
+      margin-right: 0.5rem;
+    }
+
+    .nav-link {
+      position: relative;
+      color: #cbd5e1;
+      transition: color 180ms ease, transform 180ms ease;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -0.35rem;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(135deg, #60a5fa, #c084fc);
+      transition: width 220ms ease;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -0.35rem;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(135deg, #60a5fa, #c084fc);
+      transition: width 220ms ease;
+    }
+
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    .section-fade {
+      opacity: 0;
+      transform: translateY(22px);
+      animation: fadeInUp 1s ease forwards;
+    }
+
+    .section-fade:nth-of-type(1) { animation-delay: 0.15s; }
+    .section-fade:nth-of-type(2) { animation-delay: 0.22s; }
+    .section-fade:nth-of-type(3) { animation-delay: 0.29s; }
+    .section-fade:nth-of-type(4) { animation-delay: 0.36s; }
+    .section-fade:nth-of-type(5) { animation-delay: 0.43s; }
+    .section-fade:nth-of-type(6) { animation-delay: 0.50s; }
+
+    .card-fade {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .card-fade:nth-child(1) { animation-delay: 0.1s; }
+    .card-fade:nth-child(2) { animation-delay: 0.2s; }
+    .card-fade:nth-child(3) { animation-delay: 0.3s; }
+    .card-fade:nth-child(4) { animation-delay: 0.4s; }
+    .card-fade:nth-child(5) { animation-delay: 0.5s; }
+    .card-fade:nth-child(6) { animation-delay: 0.6s; }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    body.light {
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 23%),
+                  radial-gradient(circle at bottom right, rgba(79, 70, 229, 0.1), transparent 25%),
+                  linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+      color: #0f172a;
+    }
+
+    body.light .glow-card {
+      background: rgba(255, 255, 255, 0.88);
+      border-color: rgba(148, 163, 184, 0.22);
+      box-shadow: 0 35px 80px rgba(148, 163, 184, 0.18);
+    }
+
+    body.light .footer-card,
+    body.light .hero-banner {
+      background: rgba(255, 255, 255, 0.86);
+    }
+
+    body.light .footer-card h3 {
+      color: #0f172a;
+    }
+
+    body.light .footer-card p,
+    body.light .footer-card a,
+    body.light .footer-card li {
+      color: #475569;
+    }
+
+    body.light .footer-card a:hover {
+      color: #2563eb;
+    }
+
+    body.light .newsletter-field {
+      background: rgba(255, 255, 255, 0.9);
+      color: #0f172a;
+      border-color: rgba(148, 163, 184, 0.3);
+    }
+
+    body.light .newsletter-button {
+      background: linear-gradient(135deg, #60a5fa, #c084fc);
+      color: #020617;
+    }
+
+    body.light footer .border-t {
+      border-color: rgba(148, 163, 184, 0.2);
+    }
+
+    body.light footer p,
+    body.light footer a {
+      color: #64748b;
+    }
+
+    body.light .site-header {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    body.light .brand {
+      color: #0f172a;
+    }
+
+    body.light .nav-link {
+      color: #475569;
+    }
+
+    body.light .nav-link.active,
+    body.light .nav-link:hover {
+      color: #0f172a;
+    }
+
+    body.light h1,
+    body.light h2,
+    body.light h3,
+    body.light h4,
+    body.light h5,
+    body.light h6 {
+      color: #0f172a;
+    }
+
+    body.light p,
+    body.light span,
+    body.light div {
+      color: #475569;
+    }
+
+    body.light .text-white {
+      color: #0f172a !important;
+    }
+
+    body.light .text-slate-300,
+    body.light .text-slate-400,
+    body.light .text-slate-200 {
+      color: #64748b !important;
+    }
+
+    body.light .text-sky-300 {
+      color: #0ea5e9 !important;
+    }
+
+    body.light .bg-slate-950\/80,
+    body.light .bg-slate-950\/85,
+    body.light .bg-slate-950\/90,
+    body.light .bg-slate-900\/70,
+    body.light .bg-slate-900\/85,
+    body.light .bg-slate-900\/90 {
+      background-color: rgba(255, 255, 255, 0.9) !important;
+      border-color: rgba(148, 163, 184, 0.2) !important;
+    }
+
+    body.light .border-slate-700\/60,
+    body.light .border-slate-700\/70 {
+      border-color: rgba(148, 163, 184, 0.3) !important;
+    }
+
+    .stat-value {
+      display: inline-block;
+      min-width: 2.4ch;
+    }
+
+    .footer-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 640px) {
+      .footer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .footer-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+    }
+
+    .footer-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 1.75rem;
+      padding: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .footer-card {
+        padding: 2rem;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .footer-card h3 {
+      color: #ffffff;
+      margin-bottom: 1rem;
+    }
+
+    .footer-card p,
+    .footer-card a,
+    .footer-card li {
+      color: #cbd5e1;
+    }
+
+    .footer-card ul {
+      display: grid;
+      gap: 0.75rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .footer-card a:hover {
+      color: #60a5fa;
+    }
+
+    .newsletter-group {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .newsletter-field {
+      width: 100%;
+      padding: 1rem 1.1rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e2e8f0;
+    }
+
+    .newsletter-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 1.4rem;
+      border-radius: 1rem;
+      border: none;
+      background: linear-gradient(135deg, #60a5fa, #c084fc);
+      color: #020617;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .newsletter-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 32px rgba(96, 165, 250, 0.2);
+    }
+
+    .hero-banner {
+      min-height: 26rem;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.16), rgba(123, 63, 255, 0.12));
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 2rem;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      background: radial-gradient(circle at 15% 20%, rgba(96, 165, 250, 0.2), transparent 17%),
+                  radial-gradient(circle at 80% 35%, rgba(192, 132, 252, 0.16), transparent 18%);
+      pointer-events: none;
+    }
+
+    .hero-banner .inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, #60a5fa, #c084fc);
+      color: #020617;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+
+    .btn-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 45px rgba(96, 165, 250, 0.24);
+    }
+
+    .hero-spark {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at 13% 17%, rgba(96, 165, 250, 0.28), transparent 18%),
+        radial-gradient(circle at 76% 22%, rgba(192, 132, 252, 0.24), transparent 15%),
+        radial-gradient(circle at 42% 72%, rgba(56, 189, 248, 0.18), transparent 19%);
+    }
+
+    @media (max-width: 767px) {
+      .hero-grid { gap: 1.5rem; }
+      .hero-banner { min-height: 22rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="parallax-bg"></div>
+  <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
+    <header class="site-header">
+      <div class="max-w-7xl mx-auto flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-0">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+          <div class="brand">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-400/15 text-sky-300">S</span>
+            <span>Skyline</span>
+          </div>
+          <nav class="flex flex-wrap items-center gap-4 text-slate-300/90 text-sm">
+            <a href="#services" class="nav-link">Services</a>
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#insights" class="nav-link">Insights</a>
+            <a href="#contact" class="nav-link">Contact</a>
+          </nav>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <a href="#contact" class="theme-button">Book a demo</a>
+          <button class="theme-button" aria-label="Toggle theme"><span class="theme-icon">🌙</span> Dark</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="mt-10 grid gap-10">
+      <section class="glow-card p-6 sm:p-8 lg:p-10 section-fade">
+        <div class="hero-grid">
+          <div class="space-y-6">
+            <span class="inline-flex items-center gap-2 rounded-full border border-slate-500/30 bg-slate-900/70 px-4 py-2 text-xs uppercase tracking-[0.32em] text-sky-300">Intelligent Launchpad</span>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight text-white">Design an unforgettable homepage with smart flow and striking style.</h1>
+            <p class="max-w-2xl text-slate-300 text-lg leading-8">A powerful landing page crafted for creators, startups, and modern brands. More sections, more polish, and a unique living experience that feels both functional and expressive.</p>
+
+            <div class="flex flex-wrap gap-4">
+              <a href="#contact" class="btn-gradient inline-flex items-center justify-center rounded-full px-6 py-3 font-semibold shadow-lg">Start building</a>
+              <a href="#features" class="inline-flex items-center justify-center rounded-full border border-slate-600/70 px-6 py-3 text-slate-200 hover:bg-slate-800/80 transition">Explore sections</a>
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-3">
+              <div class="rounded-3xl bg-slate-950/80 border border-slate-700/60 p-5">
+                <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Fast Build</p>
+                <p class="mt-3 text-white text-xl font-semibold">15 min setup</p>
+              </div>
+              <div class="rounded-3xl bg-slate-950/80 border border-slate-700/60 p-5">
+                <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Creative flow</p>
+                <p class="mt-3 text-white text-xl font-semibold">Unique sections</p>
+              </div>
+              <div class="rounded-3xl bg-slate-950/80 border border-slate-700/60 p-5">
+                <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Intelligent</p>
+                <p class="mt-3 text-white text-xl font-semibold">Adaptive design</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-banner p-7 rounded-[2rem] overflow-hidden relative">
+            <div class="hero-spark"></div>
+            <div class="inner h-full flex flex-col justify-between gap-6">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-slate-100/90 text-sm uppercase tracking-[0.3em]">Live overview</p>
+                  <h2 class="text-3xl font-semibold text-white mt-3">AI-driven home dashboard</h2>
+                </div>
+                <span class="rounded-3xl bg-slate-900/85 px-4 py-2 text-xs uppercase tracking-[0.28em] text-sky-300">Beta</span>
+              </div>
+
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div class="rounded-3xl bg-slate-950/85 border border-slate-700/70 p-5">
+                  <p class="text-slate-400 uppercase tracking-[0.28em] text-xs">Project status</p>
+                  <p class="mt-4 text-4xl font-semibold text-white"><span class="stat-value" data-target="87">0</span>%</p>
+                  <p class="mt-2 text-slate-400">Launch readiness with refined visual systems.</p>
+                </div>
+                <div class="rounded-3xl bg-slate-950/85 border border-slate-700/70 p-5">
+                  <p class="text-slate-400 uppercase tracking-[0.28em] text-xs">Creative output</p>
+                  <p class="mt-4 text-4xl font-semibold text-white"><span class="stat-value" data-target="34">0</span>+</p>
+                  <p class="mt-2 text-slate-400">Distinct sections created to guide visitors through a story.</p>
+                </div>
+              </div>
+
+              <div class="rounded-[2rem] bg-slate-900/90 border border-slate-700/60 p-5">
+                <div class="flex items-center justify-between gap-3 text-slate-300">
+                  <span class="text-sm uppercase tracking-[0.28em]">Recently added</span>
+                  <span class="text-xs uppercase tracking-[0.28em] text-slate-500">Live preview</span>
+                </div>
+                <div class="mt-4 grid gap-3">
+                  <div class="rounded-3xl bg-slate-950/90 p-4 border border-slate-700/60">
+                    <p class="text-sm text-sky-300">Collections</p>
+                    <p class="mt-3 text-white font-semibold">Modular section blocks for landing pages</p>
+                  </div>
+                  <div class="rounded-3xl bg-slate-950/90 p-4 border border-slate-700/60">
+                    <p class="text-sm text-sky-300">Design system</p>
+                    <p class="mt-3 text-white font-semibold">Smart color and spacing rules built-in</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="services" class="grid gap-6 sm:gap-8 lg:grid-cols-[0.9fr_0.8fr] section-fade">
+        <div class="space-y-6">
+          <p class="text-sm uppercase tracking-[0.32em] text-sky-300">What this page offers</p>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold text-white">More sections, more clarity, more intelligent layout.</h2>
+          <p class="max-w-2xl text-slate-300">Each section is designed to feel natural, easy to scan, and visually memorable. This home page now includes a strong story, rich feature highlights, useful stats, and a conversion-focused footer.</p>
+        </div>
+        <div class="grid gap-5">
+          <article class="feature-ring glow-card card-fade">
+            <h3 class="text-xl font-semibold text-white">Dynamic service showcase</h3>
+            <p class="mt-3 text-slate-300">Present your most valuable amenities with clean cards, color badges, and compelling microcopy.</p>
+          </article>
+          <article class="feature-ring glow-card card-fade">
+            <h3 class="text-xl font-semibold text-white">Thoughtful motion</h3>
+            <p class="mt-3 text-slate-300">Use hover transforms, soft glows, and layered gradients to keep the layout interesting without overwhelming the visitor.</p>
+          </article>
+          <article class="feature-ring glow-card card-fade">
+            <h3 class="text-xl font-semibold text-white">Utility-first Tailwind feel</h3>
+            <p class="mt-3 text-slate-300">Tailwind-inspired structure makes it simple to customize and scale the design later.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="features" class="space-y-6 sm:space-y-8 section-fade">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p class="text-sm uppercase tracking-[0.32em] text-sky-300">Key capabilities</p>
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold text-white mt-3">Features designed for creative direction and conversion.</h2>
+          </div>
+          <div class="rounded-full border border-slate-700/70 bg-slate-900/70 px-5 py-3 text-sm text-slate-300">Fully responsive with smart spacing and type hierarchy.</div>
+        </div>
+
+        <div class="grid gap-5 lg:grid-cols-3">
+          <div class="glow-card p-8 rounded-[2rem] card-fade">
+            <p class="text-sky-300 uppercase tracking-[0.28em] text-xs">Visual system</p>
+            <h3 class="mt-4 text-2xl font-semibold text-white">Glassmorphism panels</h3>
+            <p class="mt-3 text-slate-300">Soft blur backgrounds keep focus on content while adding depth and refinement.</p>
+          </div>
+          <div class="glow-card p-8 rounded-[2rem] card-fade">
+            <p class="text-sky-300 uppercase tracking-[0.28em] text-xs">Functional sections</p>
+            <h3 class="mt-4 text-2xl font-semibold text-white">Progressive storytelling</h3>
+            <p class="mt-3 text-slate-300">Sections flow from hero to social proof to pricing, helping visitors move through the page naturally.</p>
+          </div>
+          <div class="glow-card p-8 rounded-[2rem] card-fade">
+            <p class="text-sky-300 uppercase tracking-[0.28em] text-xs">Smart ideas</p>
+            <h3 class="mt-4 text-2xl font-semibold text-white">Unique landing narrative</h3>
+            <p class="mt-3 text-slate-300">A homepage that feels like an experience, not just a block of text and buttons.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="insights" class="grid gap-6 sm:gap-8 lg:grid-cols-[0.85fr_0.65fr] section-fade">
+        <div class="glow-card p-8 rounded-[2rem]">
+          <div class="flex items-center gap-4">
+            <div class="pulse-dot"></div>
+            <p class="text-sm uppercase tracking-[0.32em] text-slate-400">Insight panel</p>
+          </div>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold text-white">Smart analytics, intuitive visuals, and confidence-building metrics.</h2>
+          <p class="mt-4 text-slate-300">Add a data-minded section that helps visitors feel the product is capable, polished, and backed by intelligence.</p>
+
+          <div class="mt-8 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-3xl bg-slate-950/80 border border-slate-700/70 p-6">
+              <span class="text-sm text-sky-300 uppercase tracking-[0.3em]">Engagement</span>
+              <p class="mt-3 text-3xl font-semibold text-white">+82%</p>
+              <p class="mt-2 text-slate-400">Better retention through clear layout and action cues.</p>
+            </div>
+            <div class="rounded-3xl bg-slate-950/80 border border-slate-700/70 p-6">
+              <span class="text-sm text-sky-300 uppercase tracking-[0.3em]">Growth</span>
+              <p class="mt-3 text-3xl font-semibold text-white">+54%</p>
+              <p class="mt-2 text-slate-400">More visitors converting from a smarter homepage journey.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-5">
+          <div class="glow-card p-7 rounded-[2rem] card-fade">
+            <p class="text-sm uppercase tracking-[0.32em] text-sky-300">Why it stands out</p>
+            <h3 class="mt-4 text-2xl font-semibold text-white">Creative features block</h3>
+            <p class="mt-3 text-slate-300">Use this section to highlight distinct capabilities, packages, or intelligent workflows.</p>
+          </div>
+          <div class="rounded-[2rem] border border-slate-700/70 bg-slate-900/70 p-7 card-fade">
+            <div class="flex flex-col gap-5">
+              <div class="rounded-3xl bg-slate-950/90 p-5 shadow-slate-950/50">
+                <p class="text-slate-400">Unique idea</p>
+                <p class="mt-3 text-white text-lg font-semibold">Launchpad cards for storytelling</p>
+              </div>
+              <div class="rounded-3xl bg-slate-950/90 p-5 shadow-slate-950/50">
+                <p class="text-slate-400">Intelligence</p>
+                <p class="mt-3 text-white text-lg font-semibold">Smart section flow for conversion</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid gap-6 sm:gap-10 lg:grid-cols-3 section-fade">
+        <div class="glow-card p-8 rounded-[2rem] card-fade">
+          <p class="text-sm uppercase tracking-[0.32em] text-sky-300">Testimonials</p>
+          <h2 class="text-2xl sm:text-3xl font-semibold text-white">What people love</h2>
+          <p class="mt-3 text-slate-300">A testimonial section adds trust and gives personality to the page.</p>
+        </div>
+        <div class="glow-card p-8 rounded-[2rem] card-fade">
+          <p class="text-slate-300">"This homepage feels like a full digital identity, not a simple landing page. The sections are balanced and the visuals are next-level."</p>
+          <div class="mt-6 flex items-center gap-4">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-sky-500/15 text-sky-200">A</span>
+            <div>
+              <p class="font-semibold text-white">Ava Thompson</p>
+              <p class="text-sm text-slate-400">Product Designer</p>
+            </div>
+          </div>
+        </div>
+        <div class="glow-card p-8 rounded-[2rem] card-fade">
+          <p class="text-slate-300">"The smart sections make every feature feel intentional. It's perfect for founders who want a high-end impression fast."</p>
+          <div class="mt-6 flex items-center gap-4">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/15 text-purple-200">J</span>
+            <div>
+              <p class="font-semibold text-white">James Lee</p>
+              <p class="text-sm text-slate-400">Creative Director</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="glow-card p-6 sm:p-8 lg:p-10 rounded-[2.5rem] bg-slate-900/85 border border-slate-700/60 section-fade">
+        <div class="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+          <div class="max-w-xl">
+            <p class="text-sm uppercase tracking-[0.32em] text-sky-300">Final call</p>
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold text-white">Ready to bring this page to life?</h2>
+            <p class="mt-4 text-slate-300">Use this landing experience as your creative foundation. Add content, swap colors, and deploy a homepage that feels both intelligent and unmistakably yours.</p>
+          </div>
+          <div class="flex flex-col gap-4 sm:flex-row">
+            <a href="#" class="btn-gradient inline-flex items-center justify-center rounded-full px-6 py-3 font-semibold">Get the template</a>
+            <a href="#" class="inline-flex items-center justify-center rounded-full border border-slate-700/70 px-6 py-3 text-slate-200 hover:bg-slate-800/90 transition">See the sections</a>
+          </div>
+        </div>
+      </section>
+
+      <footer class="mt-8 sm:mt-12 grid gap-6 sm:gap-8">
+        <div class="footer-grid">
+          <div class="footer-card">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sky-300 uppercase tracking-[0.32em] text-xs">Skyline Labs</p>
+                <h3 class="text-2xl font-semibold text-white mt-3">Premium landing toolkit</h3>
+              </div>
+              <span class="inline-flex rounded-full bg-sky-500/15 px-3 py-1 text-xs uppercase tracking-[0.3em] text-sky-200">Premium</span>
+            </div>
+            <p class="mt-5 text-slate-300">A polished footer with quick links, contact access, and a newsletter signup section that feels premium, complete, and inviting.</p>
+          </div>
+
+            <div class="footer-card">
+            <h3>Quick links</h3>
+            <ul>
+              <li><a href="#services">Services</a></li>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#insights">Insights</a></li>
+              <li><a href="#contact">Contact</a></li>
+              <li><a href="#">Pricing</a></li>
+              <li><a href="#">Blog</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-card">
+            <h3>Contact</h3>
+            <ul>
+              <li>📍 1400 Market St, San Francisco, CA</li>
+              <li>✉️ hello@skylinelabs.com</li>
+              <li>📞 +1 (415) 555-0198</li>
+              <li>⏱ Mon–Fri · 9:00am–6:00pm</li>
+            </ul>
+          </div>
+
+          <div class="footer-card">
+            <h3>Stay connected</h3>
+            <p class="mt-3 text-slate-300">Sign up for design updates, launch tips, and fresh homepage inspiration.</p>
+            <div class="newsletter-group mt-5">
+              <input class="newsletter-field" type="email" placeholder="Enter your email" aria-label="Email address" />
+              <button class="newsletter-button">Subscribe</button>
+            </div>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <a href="#" class="text-slate-300 hover:text-white">Twitter</a>
+              <a href="#" class="text-slate-300 hover:text-white">LinkedIn</a>
+              <a href="#" class="text-slate-300 hover:text-white">Dribbble</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4 border-t border-slate-700/50 pt-6 text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 Skyline Labs. Crafted for premium digital experiences.</p>
+          <div class="flex flex-wrap items-center gap-4 text-sm">
+            <a href="#" class="hover:text-white transition">Privacy</a>
+            <a href="#" class="hover:text-white transition">Terms</a>
+            <a href="#" class="hover:text-white transition">Support</a>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </div>
+  <script>
+    const themeButton = document.querySelector('.theme-button[aria-label="Toggle theme"]');
+    const body = document.body;
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('main section[id]');
+    const statValues = document.querySelectorAll('.stat-value');
+    const subscribeButton = document.querySelector('.newsletter-button');
+    const emailInput = document.querySelector('.newsletter-field');
+
+    const applyTheme = (theme) => {
+      body.classList.toggle('light', theme === 'light');
+      themeButton.innerHTML = theme === 'light' ? '<span class="theme-icon">☀️</span> Light' : '<span class="theme-icon">🌙</span> Dark';
+      localStorage.setItem('site-theme', theme);
+    };
+
+    const savedTheme = localStorage.getItem('site-theme');
+    applyTheme(savedTheme === 'light' ? 'light' : 'dark');
+
+    themeButton.addEventListener('click', () => {
+      const nextTheme = body.classList.contains('light') ? 'dark' : 'light';
+      applyTheme(nextTheme);
+    });
+
+    const setActiveLink = () => {
+      const scrollPos = window.scrollY + window.innerHeight * 0.35;
+      sections.forEach((section) => {
+        const top = section.offsetTop;
+        const bottom = top + section.offsetHeight;
+        const id = section.getAttribute('id');
+        const link = document.querySelector(`.nav-link[href="#${id}"]`);
+        if (!link) return;
+        if (scrollPos >= top && scrollPos < bottom) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    };
+
+    const animateStats = () => {
+      statValues.forEach((valueEl) => {
+        const target = Number(valueEl.dataset.target);
+        let current = Number(valueEl.textContent);
+        if (current >= target) return;
+        const increment = Math.max(1, Math.floor(target / 25));
+        const update = () => {
+          current = Math.min(target, current + increment);
+          valueEl.textContent = current;
+          if (current < target) {
+            requestAnimationFrame(update);
+          }
+        };
+        requestAnimationFrame(update);
+      });
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          if (entry.target.querySelector('.stat-value')) {
+            animateStats();
+          }
+        }
+      });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.section-fade').forEach((section) => observer.observe(section));
+    document.querySelectorAll('.card-fade').forEach((card) => observer.observe(card));
+
+    subscribeButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      const email = emailInput.value.trim();
+      const successText = document.createElement('p');
+      successText.style.color = '#8b5cf6';
+      successText.style.marginTop = '0.75rem';
+      successText.style.fontWeight = '600';
+      if (!email || !email.includes('@')) {
+        successText.textContent = 'Please enter a valid email address.';
+        successText.style.color = '#f87171';
+      } else {
+        successText.textContent = 'Thanks! You are subscribed.';
+        emailInput.value = '';
+      }
+      const existing = document.querySelector('.newsletter-feedback');
+      if (existing) existing.remove();
+      successText.className = 'newsletter-feedback';
+      subscribeButton.parentElement.appendChild(successText);
+      setTimeout(() => {
+        successText.remove();
+      }, 4500);
+    });
+
+    const parallaxBg = document.querySelector('.parallax-bg');
+
+    const updateParallax = () => {
+      const scrollY = window.scrollY;
+      parallaxBg.style.transform = `translateY(${scrollY * 0.5}px)`;
+    };
+
+    window.addEventListener('scroll', updateParallax);
+  </script>
+</body>
+</html>
